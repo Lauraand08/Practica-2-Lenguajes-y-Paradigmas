@@ -47,7 +47,7 @@ public:
     const std::string& name() const { return name_; }
     int stations() const { return stations_; }
 
-    // TODO 1.1: la clase base no sabe cuánto cuesta ni qué tipo es, por eso son virtuales puras
+    // TODO 1.1: la clase base no sabe cuanto cuesta ni que tipo es, por eso son virtuales puras
     virtual long long baseFare() const = 0;
     virtual std::string serviceType() const = 0;
 
@@ -56,7 +56,7 @@ public:
     virtual bool allowsIntegration() const { return true; }
     virtual bool opensIntegrationWindow() const { return true; }
 
-    // TODO 1.3: método plantilla NO virtual; llama a los virtuales puros de cada hija
+    // TODO 1.3: metodo plantilla NO virtual; llama a los virtuales puros de cada hija
     std::string describe() const {
         return serviceType() + " " + name_ + " (" + std::to_string(stations_) +
                " stations) - full fare " + formatCOP(baseFare());
@@ -112,7 +112,7 @@ public:
     using TransportMode::TransportMode;
     long long baseFare() const override { return 0; }   // gratis: la tarifa troncal ya lo cubre
     std::string serviceType() const override { return "Feeder route"; }
-    bool opensIntegrationWindow() const override { return false; }   // no abre ventana (cláusula d)
+    bool opensIntegrationWindow() const override { return false; }   // no abre ventana (clausula d)
 };
 
 /* -------------------------------------------------------------------------
@@ -125,9 +125,9 @@ public:
     virtual ~Passenger() = default;
 
     const std::string& name() const { return name_; }
-    virtual std::string profile() const = 0;   // cada perfil dice cómo se llama
+    virtual std::string profile() const = 0;   // cada perfil dice como se llama
 
-    // NO es virtual: aquí se aplica el límite (nunca negativo), una sola vez para todos los perfiles
+    // NO es virtual: aqui se aplica el limite (nunca negativo), una sola vez para todos los perfiles
     long long fareOn(const TransportMode& mode) const {
         return std::max(0LL, computeFare(mode));
     }
@@ -157,7 +157,7 @@ public:
 
 protected:
     long long computeFare(const TransportMode& mode) const override {
-        if (mode.allowsStudentFlatFare()) return 1600;   // pregunta la política al modo, no su clase
+        if (mode.allowsStudentFlatFare()) return 1600;   // pregunta la politica al modo, no su clase
         return Passenger::computeFare(mode);             // llamada calificada a la base (el "super" de C++)
     }
 };
@@ -211,7 +211,7 @@ struct ChargedLeg {
     bool integrated;              // true: free transfer inside the window
 };
 
-// TODO 3.1: la red es dueña de sus modos (unique_ptr); main solo los observa
+// TODO 3.1: la red es duena de sus modos (unique_ptr); main solo los observa
 class Network {
     std::vector<std::unique_ptr<TransportMode>> modes_;
 
@@ -224,7 +224,7 @@ public:
 
     const std::vector<std::unique_ptr<TransportMode>>& modes() const { return modes_; }
 
-    // Una línea por modo, sin bucle explícito (solo se permite uno en todo el programa)
+    // Una linea por modo, sin bucle explicito (solo se permite uno en todo el programa)
     void printInventory() const {
         std::for_each(modes_.begin(), modes_.end(),
             [](const std::unique_ptr<TransportMode>& m) {
@@ -233,10 +233,10 @@ public:
     }
 };
 
-// TODO 3.2: aplica la regla de integración
+// TODO 3.2: aplica la regla de integracion
 std::vector<ChargedLeg> chargeItinerary(std::vector<Leg> legs,
                                         const Passenger& passenger) {
-    constexpr int windowMinutes = 90;      // duración de la ventana
+    constexpr int windowMinutes = 90;      // duracion de la ventana
     constexpr int maxFreeTransfers = 2;    // transbordos gratis permitidos
 
     // Ordena los tramos por minuto (llegan desordenados desde main)
@@ -244,30 +244,30 @@ std::vector<ChargedLeg> chargeItinerary(std::vector<Leg> legs,
         [](const Leg& a, const Leg& b) { return a.minute < b.minute; });
 
     std::vector<ChargedLeg> result;
-    bool windowOpen = false;   // ¿hay una ventana abierta?
-    int windowStart = 0;       // minuto en que se abrió
+    bool windowOpen = false;   // hay una ventana abierta?
+    int windowStart = 0;       // minuto en que se abrio
     int freeUsed = 0;          // transbordos gratis ya usados en esta ventana
 
-    // Único bucle explícito del programa: es el algoritmo en sí
+    // unico bucle explicito del programa: es el algoritmo en si
     for (const Leg& leg : legs) {
         const TransportMode& mode = *leg.mode;
         const long long ownFare = passenger.fareOn(mode);
 
-        // Cláusulas c) y d): paga su tarifa y no toca la ventana (ni la abre ni la reinicia)
+        // Clausulas c) y d): paga su tarifa y no toca la ventana (ni la abre ni la reinicia)
         if (!mode.allowsIntegration() || !mode.opensIntegrationWindow()) {
             result.push_back({leg.minute, mode.name(), mode.serviceType(), ownFare, false});
             continue;
         }
 
-        // ¿Cae dentro de la ventana y aún quedan transbordos gratis?
+        // Cae dentro de la ventana y aun quedan transbordos gratis?
         const bool insideWindow = windowOpen &&
                                   (leg.minute - windowStart) <= windowMinutes &&
                                   freeUsed < maxFreeTransfers;
 
-        if (insideWindow) {                                  // cláusula b): transbordo gratis
+        if (insideWindow) {                                  // clausula b): transbordo gratis
             ++freeUsed;
             result.push_back({leg.minute, mode.name(), mode.serviceType(), 0, true});
-        } else {                                             // cláusulas a) y e): paga y abre ventana nueva
+        } else {                                             // clausulas a) y e): paga y abre ventana nueva
             windowOpen = true;
             windowStart = leg.minute;
             freeUsed = 0;
