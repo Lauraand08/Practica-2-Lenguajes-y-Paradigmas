@@ -1,6 +1,6 @@
 # Práctica 2 - Integrated Itinerary and Fare Engine
 
-Universidad EAFIT, Lenguajes y Paradigmas de Computación (SI1002-7), 2026-2
+Universidad EAFIT, Lenguajes y Paradigmas de Computación, 2026-2
 
 ## Integrantes
 
@@ -58,4 +58,4 @@ En este programa no se notaría porque las hijas solo agregan un `long long`, pe
 
 ### Pregunta 2
 
-La segunda pregunta de defensa no está especificada en el documento del enunciado.
+La segunda pregunta de defensa no estaba especificada.
